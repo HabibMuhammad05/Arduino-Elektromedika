@@ -6,6 +6,7 @@ typedef struct struct_message {                   // buat struct dengan nama 'st
   uint8_t DEV_ID;                                 // variabel tanda pengenal setiap pengirim data
   float hum, temp;                                // variabel float(desimal) untuk kelembaban dan suhu
 } struct_message;                                 // pengenalan struct
+
 struct_message myData;                            // buat objek struct dengan nama 'myData'
 
 struct_message device1;                           // objek dengan nama 'device1' untuk data device 1
