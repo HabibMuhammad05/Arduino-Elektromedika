@@ -7,8 +7,9 @@ typedef struct struct_message {                   // buat struct dengan nama 'st
 } struct_message;                                 // pengenalan struct
 struct_message myData;                            // buat objek struct dengan nama 'myData'
 
-uint8_t broadcastAddress[] = {0x48, 0x3F, 0xDA, 0x87, 0xF6, 0xBB};
-uint8_t broadcastAddress2[] = {0x48, 0x3F, 0xDA, 0x87, 0xF6, 0xBB};
+uint8_t broadcastAddress[] = {0x48, 0xE7, 0x29, 0x6D, 0x86, 0x23}; // ALAMAT MAC PENERIMA
+
+uint8_t broadcastAddress2[] = {0x08, 0xF9, 0xE0, 0x75, 0xC1, 0xD6};
 
 //================ DHT11 LIB&VARS ================//
 #include <DHT.h>                                  // masukkan library DHT
