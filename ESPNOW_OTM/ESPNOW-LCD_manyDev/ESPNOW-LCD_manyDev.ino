@@ -17,11 +17,7 @@ void setup() {                                    // perulangan yang hanya akan 
   Serial.begin(115200);                           // mulai komunikasi serial dengan kecepatan 115200
   lcd.begin();                                    // mulai komunikasi dengan LCD
   lcd.backlight();                                // hidupkan backlight LCD
-  
-  lcd.setCursor(0,0);                             // pindahkan kursor lCD ke posisi 0,0
-  lcd.print("INITIALIZING....");                  // tampilkan pada LCD
-  delay(1000);                                    // jeda 1000ms (1 detik)
-
+ 
   lcd.clear();                                    // hapus semua karakter di lcd
   lcd.setCursor(0,0);                             // pindahkan kursor lCD ke posisi 0,0
   lcd.print("ESPNOW DATA RECV");                  // tampilkan pada LCD
@@ -56,12 +52,12 @@ void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {  // fungsi 
   lcd.setCursor(0,0);                             // pindahkan kursor lCD ke posisi 0,0
   lcd.print("ESPNOW DATA RECV");                  // tampilkan pada lcd
   lcd.setCursor(0,1);                             // pindahkan kursor lCD ke posisi 0,1
-  lcd.print("T: ");                               // tampilkan informasi suhu pada lcd
+  lcd.print("T:");                               // tampilkan informasi suhu pada lcd
   lcd.print(myData.temp);                         // ambil data suhu dari objek myData  
-  lcd.print("C");                                 // tampilkan pada lcd
+
   
   lcd.setCursor(8,1);                             // pindahkan kursor lCD ke posisi 0,0
-  lcd.print("H: ");                               // tampilkan informasi kelembaban pada lcd
+  lcd.print("H:");                               // tampilkan informasi kelembaban pada lcd
   lcd.print(myData.hum);                          // ambil data kelembaban dari objek myData
   lcd.print("%");                                 // tampilkan pada lcd
 }
