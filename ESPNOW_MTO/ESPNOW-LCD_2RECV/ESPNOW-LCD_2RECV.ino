@@ -22,11 +22,8 @@ void setup() {                                    // perulangan yang hanya akan 
   Serial.begin(115200);                           // mulai komunikasi serial dengan kecepatan 115200
   lcd.begin();                                    // mulai komunikasi dengan LCD
   lcd.backlight();                                // hidupkan backlight LCD
+  pinMode(LED_BUILTIN, OUTPUT);                   // atur LED initernal sebagai output untuk indikator
   
-  lcd.setCursor(0,0);                             // pindahkan kursor lCD ke posisi 0,0
-  lcd.print("INITIALIZING....");                  // tampilkan pada LCD
-  delay(1000);                                    // jeda 1000ms (1 detik)
-
   lcd.clear();                                    // hapus semua karakter di lcd
   lcd.setCursor(0,0);                             // pindahkan kursor lCD ke posisi 0,0
   lcd.print("ESPNOW DATA RECV");                  // tampilkan pada LCD
@@ -51,9 +48,6 @@ void loop() {                                     // perulangan yang akan dijala
 void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {  // fungsi ketika data diterima
   memcpy(&myData, incomingData, sizeof(myData));  // salin data yang diterima ke objek struct 'myData' 
   
-  if(myData.DEV_ID == 1) device1 = myData;        // jika DEV_ID adalah 1, salin data ke struct device1
-  else if(myData.DEV_ID == 2) device2 = myData;   // jika DEV_ID adalah 2, salin data ke struct device2
-  
   Serial.print("received from DEV_ID: ");         // tampilkan sumber data di serial monitor
   Serial.println(myData.DEV_ID);                  // tampilkan darimana data diterima
   Serial.print("TEMPERATURE: ");                  // tampilkan suhu pada serial monitor
@@ -61,23 +55,29 @@ void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {  // fungsi 
   Serial.print("HUMIDITY: ");                     // tampilkan kelembaban pada serial monitor
   Serial.println(myData.hum);                     // ambil data kelembababan yang diterima
   Serial.println("==== end of received data ====\n\n");// tampilkan pada serial monitor
-
-  lcd.clear();                                    // hapus semua karakter di lcd
-  lcd.setCursor(0,0);                             // pindahkan kursor lCD ke posisi 0,0
-  lcd.print("T1:");                               // tampilkan informasi suhu device 1 pada lcd
-  lcd.print(device1.temp);                        // ambil data suhu dari objek device1  
-  lcd.print("C");                                 // tampilkan pada lcd
-  lcd.setCursor(8,0);                             // pindahkan kursor lCD ke posisi 8,0
-  lcd.print("H1:");                               // tampilkan informasi kelembaban device 1
-  lcd.print(device1.hum);                         // ambil data kelembaban dari objek device1
-  lcd.print("%");                                 // tampilkan pada lcd
-
-  lcd.setCursor(0,1);                             // pindahkan kursor lCD ke posisi 0,1
-  lcd.print("T2:");                               // tampilkan informasi suhu device 2 pada lcd
-  lcd.print(device2.temp);                        // ambil data suhu dari objek device2  
-  lcd.print("C");                                 // tampilkan pada lcd
-  lcd.setCursor(8,1);                             // pindahkan kursor lCD ke posisi 8,1
-  lcd.print("H2:");                               // tampilkan informasi kelembaban device 2
-  lcd.print(device2.hum);                         // ambil data kelembaban dari objek device2
-  lcd.print("%");                                 // tampilkan pada lcd
+  
+  if(myData.DEV_ID == 1) {
+    device1 = myData;                             // jika DEV_ID adalah 1, salin data ke struct device1
+    lcd.setCursor(0,0);                           // pindahkan kursor lCD ke posisi 0,0
+    lcd.print("T1:");                             // tampilkan informasi suhu device 1 pada lcd
+    lcd.print(device1.temp);                      // ambil data suhu dari objek device1  
+    lcd.print("C");                               // tampilkan pada lcd
+    lcd.setCursor(7,0);                           // pindahkan kursor lCD ke posisi 8,0
+    lcd.print(" H1:");                            // tampilkan informasi kelembaban device 1
+    lcd.print(device1.hum);                       // ambil data kelembaban dari objek device1
+    lcd.print("%");                               // tampilkan pada lcd
+    digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN)); // flip flop led jika ada data device 1
+  }
+  else if(myData.DEV_ID == 2) {
+    device2 = myData;                             // jika DEV_ID adalah 2, salin data ke struct device2
+    lcd.setCursor(0,1);                           // pindahkan kursor lCD ke posisi 0,1
+    lcd.print("T2:");                             // tampilkan informasi suhu device 2 pada lcd
+    lcd.print(device2.temp);                      // ambil data suhu dari objek device2  
+    lcd.print("C");                               // tampilkan pada lcd
+    lcd.setCursor(7,1);                           // pindahkan kursor lCD ke posisi 8,1
+    lcd.print(" H2:");                            // tampilkan informasi kelembaban device 2
+    lcd.print(device2.hum);                       // ambil data kelembaban dari objek device2
+    lcd.print("%");                               // tampilkan pada lcd
+    digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN)); // flip flop led jika ada data device 2
+  }
 }
