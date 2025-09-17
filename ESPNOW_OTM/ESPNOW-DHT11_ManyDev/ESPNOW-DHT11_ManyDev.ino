@@ -1,0 +1,64 @@
+//================ ESPNOW LIB&VARS ===============//
+#include <ESP8266WiFi.h>                          // masukkan library WiFi ESP8266
+#include <espnow.h>                               // masukkan library ESPNOW
+
+typedef struct struct_message {                   // buat struct dengan nama 'struct_message'
+  float hum, temp;                                // variabel float(desimal) untuk kelembaban dan suhu
+} struct_message;                                 // pengenalan struct
+struct_message myData;                            // buat objek struct dengan nama 'myData'
+
+uint8_t broadcastAddress[] = {0x48, 0x3F, 0xDA, 0x87, 0xF6, 0xBB};
+uint8_t broadcastAddress2[] = {0x48, 0x3F, 0xDA, 0x87, 0xF6, 0xBB};
+
+//================ DHT11 LIB&VARS ================//
+#include <DHT.h>                                  // masukkan library DHT
+DHT dht(2, DHT11);                                // buat objek sensor dengan nama DHT pada pin GPIO2              
+
+//================== OTHER VARS ==================//
+unsigned long lastTime = 0;                       // variabel untuk menyimpan millis() sementara
+unsigned long timerDelay = 2000;                  // variabel yang mengontrol jeda setiap pengiriman
+ 
+//================== VOID SETUP ==================//
+void setup() {                                    // perulangan yang hanya akan dijalankan sekali
+  Serial.begin(115200);                           // mulai komunikasi serial dengan kecepatan 115200
+  dht.begin();                                    // nulai komunikasi dengan sensor DHT
+  
+  WiFi.mode(WIFI_STA);                            // ganti mode wifi ESP menjadi mode Station
+
+  if (esp_now_init() != 0) {                      // pengecekan jika espnow gagal inisialisasi
+    Serial.println("Error initializing ESP-NOW"); // tampilkan pesan ESPNOW gagal
+    return;                                       // kembali lagi ke awal program
+  }
+  esp_now_set_self_role(ESP_NOW_ROLE_CONTROLLER); // atur peran sebsgai CONTROLLER(pengirim data sensor)
+  esp_now_register_send_cb(OnDataSent);           // atur fungsi callback untuk data yang akan dikirimkan
+  esp_now_add_peer(broadcastAddress, ESP_NOW_ROLE_SLAVE, 1, NULL, 0);   // tambahkan perangkat penerima data
+  esp_now_add_peer(broadcastAddress2, ESP_NOW_ROLE_SLAVE, 1, NULL, 0);   // tambahkan perangkat penerima data
+                 //(alamat MAC penerima,peran penerima,wifi ch1,tanpa enskripsi,panjang enskripsi 0)
+}
+ 
+//================== VOID LOOP ===================//
+void loop() {                                     // perulangan yang akan dijalankan selamanya
+  if ((millis() - lastTime) > timerDelay) {       // jeda millis setiap interval 2000ms(2 detik)
+    myData.hum = dht.readHumidity();              // baca data kelembaban dan masukkan ke variabel objek
+    myData.temp = dht.readTemperature();          // baca data suhu dan masukkan ke variabel objek
+    
+    esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));// kirim data dengan informasi
+    esp_now_send(broadcastAddress2, (uint8_t *) &myData, sizeof(myData));// kirim data dengan informasi
+                 //(alamat penerima, pointer struct, ukuran struct) 
+    lastTime = millis();                          // simpan nilai millis saat ini
+  }
+}
+
+void OnDataSent(uint8_t *mac_addr, uint8_t sendStatus) {// fungsi callback ketika data dikirimkan
+  char macStr[18];                                // variabel array menampung data alamat mac
+  snprintf(macStr, sizeof(macStr), "%02x:%02x:%02x:%02x:%02x:%02x", // buat objek string konversi dari mac
+         mac_addr[0], mac_addr[1], mac_addr[2], mac_addr[3], mac_addr[4], mac_addr[5]);
+  Serial.print(macStr);                           // tampilkan data mac address di serial monitor
+  Serial.print("Last Packet Send Status: ");      // tampilkan pada serial monitor
+  if (sendStatus == 0){                           // jika status pengiriman berhasil
+    Serial.println("Delivery success");           // tampilkan pada serial monitor
+  }
+  else{                                           // jika status pengiriman gagal
+    Serial.println("Delivery fail");              // tampilkan pada serial monitor
+  }
+}
